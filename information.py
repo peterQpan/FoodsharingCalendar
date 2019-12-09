@@ -52,7 +52,6 @@ class JsFoodsharingSiteScraperFireFox:
         self.webdriver.get(self.start_url)
         self.webdriver.find_element_by_id("login-email").send_keys(login_name)
         self.webdriver.find_element_by_id("login-password").send_keys(password)
-        self.webdriver.get_screenshot_as_file("screenshot.png")
         self.webdriver.find_element_by_class_name("btn.btn-secondary.btn-sm").click()
 
         self.queue.put("Erfolgreich eingeloggt")
