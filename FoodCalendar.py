@@ -12,8 +12,8 @@ a little DB for addresses,
 or first of all an routine that prevents loading an address  a second time
 AND a DB can cause trouble, if an company moves,
 which, of course, is not very often, but non the less it happens sometime
-well i now at nearly 30 hours for this project and it runs whit no bigger issues, and as i
-thought of in the beginning...
+well i now at nearly 30 hours for this project and it runs whit no bigger issues, 
+and with more features as i thought of in the beginning...
 what better moment to call it a day, so to speak"""
 import randomone
 import gui_toolkit
