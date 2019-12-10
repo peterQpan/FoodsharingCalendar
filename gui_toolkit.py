@@ -18,8 +18,10 @@ from randomone import SomethingDing
 class TkUpdateQueue(queue.Queue):
     """one try to solve the problem of not immediately showing info in the text-widget...
     did not work at all :'''D
-    of course the moment something got puted into the queue, is far ahead of the actual moment the widget, gets the info and inserted it....
-    but at least it could have worked whit one item spare...., but as i sayed.... it did not at all :''''( xD actually it blocked"""
+    of course the moment something got puted into the queue, is far ahead of the actual moment the widget, 
+    gets the info and inserted it....
+    but at least it could have worked whit one item spare...., 
+    but as i sayed.... it did not at all :''''( xD actually it blocked"""
     def __init__(self):
         super().__init__()
         self.windows = None
@@ -72,7 +74,8 @@ class LoggingWindow:
         except:
             pass
 
-    def result(self, result_dict): #not totally shure if this is the right place to implement, but in a small code like here it is ok i think
+    def result(self, result_dict): #not totally shure if this is the right place to implement, 
+                                    #but in a small code like here it is ok i think
         self.conflict_frame = tkinter.Frame(self.tk)
         self.conflict_frame.pack(side=tkinter.LEFT)
         self.conflict_label = tkinter.Label(self.conflict_frame, text="Konflikte:")
@@ -159,7 +162,7 @@ class Startframe(tkinter.Frame):
         self.first = first
         self.master.wm_title("Foodsharing Calendar v0.1")
         #todo programm icon
-        self.text = self.text()
+        self.text = self.text()  #noticed after my uplade here wont cange it now
         if not master:
             self.pack(expand=True, fill="both")
         entry = LockingInFrame(master=self, one_two=one_two)
