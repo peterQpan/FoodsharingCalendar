@@ -118,7 +118,7 @@ def programmUsedFirst():
 
 
 def debug():
-    return False
+    return True
 
 def simpleInitUserConf(input_type, defalult):
     try:
@@ -153,3 +153,7 @@ def companyAdressElementClassName():
 
 
 user_configs = loadUserConfigurations("modifications.ini")
+
+
+def dateAndCompanyListKey():
+    return "clear.datelist"

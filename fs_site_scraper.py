@@ -116,7 +116,8 @@ class JsFoodsharingSiteScraper:
         :return: abhol_dates, companies, urls
         """
         self.getSiteByUrl(self.personal_informations_url)
-        content_box = self.webdriver.find_element_by_class_name("datelist.linklist")
+
+        content_box = self.webdriver.find_element_by_class_name(modification.dateAndCompanyListKey())
         date_company_link_snipets = content_box.find_elements_by_tag_name("a")
         assert len(date_company_link_snipets) % 3 == 0
 

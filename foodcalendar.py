@@ -133,22 +133,19 @@ class GoogleCalendarMainGui():
                 values:dict = self.loginWindow()
                 email = values["Email"]
                 psd = values["psd"]
-            try:
-                self.site_scraper = fs_site_scraper.JsFoodsharingSiteScraper(
-                        login_name=email, password=psd, programm_used_first_time=modification.programmUsedFirst(),
-                        debug=modification.debug())  # todo debug weg
-                try:
-                    if values["speichern"]:
-                        sc.saveLoginData(values["Email"], values["psd"])
+                if values["speichern"]:
+                    sc.saveLoginData(values["Email"], values["psd"])
 
-                except Exception as e:
-                    print(f"{Fore.RED}ERROR #9009u2önk32,m --> Value 'speichern' nicht vorhanden {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+            # try:
+            self.site_scraper = fs_site_scraper.JsFoodsharingSiteScraper(
+                    login_name=email, password=psd, programm_used_first_time=modification.programmUsedFirst(),
+                    debug=modification.debug())  # todo debug weg
 
-                return
-            except Exception as e:
-                print(f"{Fore.RED}ERROR #23424wedsadsf --> {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-                sg.Print(f"FEHLER!!!! Überprüfe zugangsdaten oder Internetverbindung")
-
+            #     return
+            # except Exception as e:
+            #     print(f"{Fore.RED}ERROR #23424wedsadsf --> {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+            #     sg.Print(f"FEHLER!!!! Überprüfe zugangsdaten oder Internetverbindung")
+            #     break
     @classmethod
     def firstWindow(cls):
         layout = [[sg.Text(content.fistWindowText(), size=modification.firsWindowSize(), justification="center", font=modification.firstWindowFontSize())],
