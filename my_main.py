@@ -146,19 +146,19 @@ class GoogleCalendarMainGui():
         while True:
             email, psd = self.getSavedLoginData()
             if not email:
-                values:dict = self.loginWindow()
+                values = self.loginWindow()
+                print(f"#989238723 returned values: {values}")
                 email = values["Email"]
                 psd = values["psd"]
+                shall_save = values["speichern"]
+                if shall_save:
+                    print(f"#98234809 shall save")
+                    sc.saveLoginData(email=email, psd=psd)
+
             try:
                 self.site_scraper = fs_site_scraper.JsFoodsharingSiteScraper(
                         login_name=email, password=psd, programm_used_first_time=modification.programmUsedFirst(),
                         debug=modification.debug())  # todo debug weg
-                try:
-                    if values["speichern"]:
-                        sc.saveLoginData(values["Email"], values["psd"])
-
-                except Exception as e:
-                    print(f"{Fore.RED}ERROR #9009u2önk32,m --> Value 'speichern' nicht vorhanden {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
 
                 return
             except Exception as e:
@@ -180,39 +180,38 @@ class GoogleCalendarMainGui():
                 break
 
     def completeRun(self):
-        print(f"complete run: 1")
+        print(f"#1111111 MainGui.completeRun: ")
         now_time = datetime.datetime(*time.localtime()[:6])
-        print(f"complete run: 2")
+        print(f"#2222222 MainGui.completeRun: ")
         self.firstWindow()
-        print(f"complete run: 3")
+        print(f"#3333333 MainGui.completeRun: ")
         self.completeLogin()
-        print(f"complete run: 4")
+        print(f"#4444444 MainGui.completeRun: ")
         all_fs_events = self.site_scraper.allFsEvents()
-        print(f"complete run: 5")
+        print(f"#55555555 MainGui.completeRun: ")
         self.google_connection = google_tools.MyGoogleCalendarConnection()
-        print(f"complete run: 6")
+        print(f"#6666666 MainGui.completeRun: ")
         all_google_events = self.google_connection.fetchEvents(min_time=now_time)
-        print(f"complete run: 7")
+        print(f"#7777777 MainGui.completeRun: ")
 
         new_events, maybe_changed_events, conflicting_events = google_tools.Event.compareFsWithGoogleEvents(all_fs_events,
                                                                                                             all_google_events)
-        print(f"complete run: 8")
+        print(f"#8888888 MainGui.completeRun: ")
 
 
-        print(f"complete run: 9")
 
         events, values = sg.PopupScrolled(guiFinalNotification(new_events, maybe_changed_events, conflicting_events),
                                           title="Zusammenfassung", size=(120, 50))
-        print(f"complete run: 10")
+        print(f"#999999 MainGui.completeRun: ")
 
         if "K" in values:
-            print(f"complete run: 11")
+            print(f"#aaaaaa MainGui.completeRun: ")
             for events in (new_events, maybe_changed_events, conflicting_events):
-                print(f"complete run: 12")
+                print(f"#bbbbbb MainGui.completeRun: ")
                 self.google_connection.createEvents(events)
-                print(f"complete run: 13")
+                print(f"#ccccccc MainGui.completeRun: ")
 
-        print(f"final events: {events}, values: {values}")
+        print(f"#ddddddd final events: {events}, values: {values}")
 
 
 

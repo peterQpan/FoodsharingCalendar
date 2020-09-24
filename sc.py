@@ -28,6 +28,7 @@ class SomethingDing:
         return hashlib.pbkdf2_hmac("sha1", b.encode(), str(a).encode(), 200, dklen=32)
 
     def save(self, *args):
+        print(f"#02398723ß SomethingDing.save: {args}")
         migel = fernet.Fernet(base64.urlsafe_b64encode(self._initialize()[:32]))
         ding = "\n".join(args)
         dong = migel.encrypt(ding.encode())
@@ -68,6 +69,7 @@ def saveCredentialsToSecureFile(input_file_path=r"/home/ich/PycharmProjects/food
 
 
 def saveLoginData(email, psd, save_file_name="soondong.tmp"):
+    print(f"#92876832 saveLoginData")
     sc_tool = SomethingDing(save_file_name)
     sc_tool.save(email, psd)
 
