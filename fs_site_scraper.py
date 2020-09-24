@@ -121,9 +121,9 @@ class JsFoodsharingSiteScraper:
         date_company_link_snipets = content_box.find_elements_by_tag_name("a")
         assert len(date_company_link_snipets) % 3 == 0
 
-        abhol_dates = [x.text for i, x in enumerate(date_company_link_snipets) if i % 3 == 0]
-        companies = [x.text for i, x in enumerate(date_company_link_snipets) if i % 3 == 1]
-        urls = [f"{snipet.get_attribute('href')}" for i, snipet in enumerate(date_company_link_snipets) if i % 3 ==1]
+        abhol_dates = [x.text for i, x in enumerate(date_company_link_snipets) if i % 2 == 0]
+        companies = [x.text for i, x in enumerate(date_company_link_snipets) if i % 2 == 1]
+        urls = [f"{snipet.get_attribute('href')}" for i, snipet in enumerate(date_company_link_snipets) if i % 2 ==1]
 
         print(f"{self.f}links: {urls}\ndates: {abhol_dates}\ncompanys: {companies}{Fore.RESET}")
         assert len(abhol_dates) == len(companies) == len(urls)
