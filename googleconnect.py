@@ -14,7 +14,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 import randomone
-from events import Event
+from google_tools import Event
 from pip._vendor.colorama import Fore
 from randomone import SomethingDing
 
