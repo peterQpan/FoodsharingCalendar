@@ -20,30 +20,30 @@ from fs_site_scraper import JsFoodsharingSiteScraper
 sg.theme("DarkTanBlue")
 
 
-def googleCalendarMain():
-
-    now_time = datetime.datetime(*time.localtime()[:6])
-
-    fs_site_scraper = fss.JsFoodsharingSiteScraper(
-            login_name=modification.email(), password=modification.psd(),
-            programm_used_first_time=modification.programmUsedFirst(), debug=modification.debug())
-    all_fs_events = fs_site_scraper.allFsEvents()
-    for event in all_fs_events:
-        print(event)
-
-    google_calender_connection = google_tools.MyGoogleCalendarConnection()
-    all_google_events = google_calender_connection.fetchEvents(min_time=now_time)
-
-    new_events, maybe_changed_events, conflicting_events = google_tools.Event.compareFsWithGoogleEvents(all_fs_events, all_google_events)
-
-    print(f"NEW EVENTS:\n{new_events}\n\n\n")
-    print(f"{Fore.YELLOW}maybe_changed\n{maybe_changed_events}\n\n\n")
-    print(f"{Fore.RED}conflictiong_events:\n{conflicting_events}\n\n\n”{Fore.RESET}")
-
-    for event in new_events:
-        google_calender_connection.createGoogleEvent(event)
-
-
+# def googleCalendarMain():
+#
+#     now_time = datetime.datetime(*time.localtime()[:6])
+#
+#     fs_site_scraper = fss.JsFoodsharingSiteScraper(
+#             login_name=modification.email(), password=modification.psd(),
+#             programm_used_first_time=modification.programmUsedFirst(), debug=modification.debug())
+#     all_fs_events = fs_site_scraper.allFsEvents()
+#     for event in all_fs_events:
+#         print(event)
+#
+#     google_calender_connection = google_tools.MyGoogleCalendarConnection()
+#     all_google_events = google_calender_connection.fetchEvents(min_time=now_time)
+#
+#     new_events, maybe_changed_events, conflicting_events = google_tools.Event.compareFsWithGoogleEvents(all_fs_events, all_google_events)
+#
+#     print(f"NEW EVENTS:\n{new_events}\n\n\n")
+#     print(f"{Fore.YELLOW}maybe_changed\n{maybe_changed_events}\n\n\n")
+#     print(f"{Fore.RED}conflictiong_events:\n{conflicting_events}\n\n\n”{Fore.RESET}")
+#
+#     for event in new_events:
+#         google_calender_connection.createGoogleEvent(event)
+#
+#
 
 
 
@@ -127,25 +127,22 @@ class GoogleCalendarMainGui():
         return email, psd
 
     def completeLogin(self):
-        while True:
-            email, psd = self.getSavedLoginData()
-            if not email:
-                values:dict = self.loginWindow()
-                email = values["Email"]
-                psd = values["psd"]
-                if values["speichern"]:
-                    sc.saveLoginData(values["Email"], values["psd"])
+        email, psd = self.getSavedLoginData()
+        if not email:
+            values:dict = self.loginWindow()
+            email = values["Email"]
+            psd = values["psd"]
+            if values["speichern"]:
+                sc.saveLoginData(values["Email"], values["psd"])
 
-            # try:
+        try:
             self.site_scraper = fs_site_scraper.JsFoodsharingSiteScraper(
                     login_name=email, password=psd, programm_used_first_time=modification.programmUsedFirst(),
                     debug=modification.debug())  # todo debug weg
+        except Exception as e:
+            print(f"{Fore.RED}ERROR #9808230832 --> {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+            sg.Print(f"FEHLER!!!! Überprüfe zugangsdaten oder Internetverbindung")
 
-            #     return
-            # except Exception as e:
-            #     print(f"{Fore.RED}ERROR #23424wedsadsf --> {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-            #     sg.Print(f"FEHLER!!!! Überprüfe zugangsdaten oder Internetverbindung")
-            #     break
     @classmethod
     def firstWindow(cls):
         layout = [[sg.Text(content.fistWindowText(), size=modification.firsWindowSize(), justification="center", font=modification.firstWindowFontSize())],
