@@ -156,7 +156,7 @@ class JsFoodsharingSiteScraper:
         :param date_string: z.B. '✓ Samstag, 2. Mai, 19:05 Uhr' oder '✓ Morgen, 16:45 Uhr'
         :return: datetime.datetime(2020, 5, 1, 16, 45)
         """
-
+        #todo modularize this here!!!
         date = date_string.replace(".", "")
         date = date.replace(",", "")        #'✓ Samstag, 2. Mai, 19:05 Uhr' -->  ['✓', 'Samstag', '2', 'Mai', '19:05', 'Uhr']   len(6)
         date = date.split()                 #'✓ Morgen, 16:45 Uhr' --> ['✓', 'Morgen', '16:45', 'Uhr']   len(4)
@@ -274,6 +274,9 @@ class JsFoodsharingSiteScraper:
         self.personal_informations_url = self.goToPersonalInformations()
         print(f"automated run step 4")
         dates, companys, urls = self.gatherTimesCompanysAndCompanySiteUrlsFromPersonalProfilSite()
+        print(f"#0092323 dates: {dates}")
+        print(f"#90ß0293 companys: {companys}")
+        print(f"#ow02o9u urls: {urls}")
         print(f"automated run step 5")
         isodates = [self.isoDateFromDateString(date) for date in dates]
         print(f"automated run step 6")
