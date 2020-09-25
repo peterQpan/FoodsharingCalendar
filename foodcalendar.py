@@ -93,7 +93,7 @@ class GoogleCalendarMainGui:
             email, psd = None, None
         return email, psd
 
-    def completeLogin(self):
+    def fsLogin(self):
         email, psd = self.getSavedLoginData()
         if not email:
             values: dict = self.loginWindow()
@@ -103,9 +103,10 @@ class GoogleCalendarMainGui:
                 sc.saveLoginData(values["Email"], values["psd"])
 
         try:
-            self.site_scraper = fs_site_scraper.JsFoodsharingSiteScraper(
+            site_scraper = fs_site_scraper.JsFoodsharingSiteScraper(
                 login_name=email, password=psd, programm_used_first_time=modification.programmUsedFirst(),
                 debug=modification.debug())  # todo debug weg
+            return site_scraper
         except Exception as e:
             print(
                 f"{Fore.RED}ERROR #9808230832 --> {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
@@ -132,7 +133,7 @@ class GoogleCalendarMainGui:
         print(f"complete run: 2")
         self.firstWindow()
         print(f"complete run: 3")
-        self.completeLogin()
+        self.site_scraper = self.fsLogin()
         print(f"complete run: 4")
         all_fs_events = self.site_scraper.allFsEvents()
         print(f"complete run: 5")
