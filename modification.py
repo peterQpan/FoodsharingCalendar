@@ -1,27 +1,9 @@
 import os
 
-from pip._vendor.colorama import Fore
 import PySimpleGUI as sg
 
-# with open("modifications.ini") as fh:
-#     for line in fh.readlines():
-#         line = line.strip()
-#         if line.startswith('#') or not line:
-#             continue
-#         try:
-#             key, split, value = line.partition(" ")
-#             value = int(value)
-#         except Exception as e:
-#             print(f"{Fore.RED}ERROR #89iuhlkjn23 --> Fehler bei user_modification {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-#         finally:
-#             try:
-#                 user_configs[key] = value
-#             except Exception as e:
-#                 print(f"{Fore.RED}ERROR #09iklnlkasf --> Fehler bei user_modification {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-#
 
-
-#todo hier gehts weiter: hier schon int zu machen gibt in der popup version int.replace error
+# todo hier gehts weiter: hier schon int zu machen gibt in der popup version int.replace error
 def loadUserConfigurations(file_name="modifications.ini"):
     user_configs = {}
     with open(file_name) as fh:
@@ -35,8 +17,6 @@ def loadUserConfigurations(file_name="modifications.ini"):
             except Exception as e:
                 sg.Print(f"Fehler beim Versuch key={key} : value={value} ins Dictionary zu schreiben")
     return user_configs
-
-
 
 
 def fsBaseUrl():
@@ -67,20 +47,18 @@ def linkTextICHKENNE():
     return "ich kenne"
 
 
-# def linkTextToProfile():
-#     return None
-
-
 def profilePathClassName():
     return "avatar.size-50.sleepmode-0"
+
 
 def profileSnipet():
     return "profile/"
 
+
 def integerTupleFromUserInput(input_kind):
     minutes = user_configs.get(input_kind, "")
     try:
-        return (int(minutes), )
+        return (int(minutes),)
     except:
         if minutes:
             try:
@@ -95,10 +73,9 @@ def integerTupleFromUserInput(input_kind):
 def popupMinutes():
     return integerTupleFromUserInput("popup_minutes")
 
+
 def emailMinutes():
     return integerTupleFromUserInput("email_minutes")
-
-
 
 
 def color_id():
@@ -114,13 +91,14 @@ def calendar_id():
 
 def programmUsedFirst():
     if os.path.exists(os.path.join(".", "soondong.tmp")):
-        #todo richtige speicherdatei suchen
+        # todo richtige speicherdatei suchen
         return False
     return True
 
 
 def debug():
     return True
+
 
 def simpleInitUserConf(input_type, defalult):
     try:
@@ -143,7 +121,6 @@ def firsWindowSize():
 
 def firstWindowFontSize():
     return ("Standard", 10)
-
 
 
 def companyAdressElementId():

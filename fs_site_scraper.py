@@ -4,10 +4,10 @@ import platform
 import sys
 import time
 
-from pip._vendor.colorama import Fore
-from selenium import webdriver
 import selenium.webdriver.firefox.options
 from PySimpleGUI import Print
+from pip._vendor.colorama import Fore
+from selenium import webdriver
 
 import google_tools
 import modification
@@ -16,8 +16,9 @@ import modification
 class UnknownOS(Exception):
     pass
 
+
 class CrossPlatformJS_Driver(webdriver.Firefox):
-    def __init__(self, debug=modification.debug()): #super() wird in den funktionen gerufen
+    def __init__(self, debug=modification.debug()):  # super() wird in den funktionen gerufen
         self.f = Fore.MAGENTA
         print(f"{self.f}{self.__class__.__name__} geladen {Fore.RESET}")
 
@@ -55,28 +56,24 @@ class CrossPlatformJS_Driver(webdriver.Firefox):
                 print(f"{self.f}geladen wurde: {driver_file_path} {Fore.RESET}")
                 return
             except Exception as e:
-                (f"{Fore.RED}ERROR #09kölkweröklqw --> Treiber laden fehlgeschlagen {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+                print(f"{Fore.RED}ERROR #09kölkweröklqw --> Treiber laden fehlgeschlagen {e.__traceback__.tb_lineno}, "
+                      f"{repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
                 Print("Webbrowser-Driver fehlgeschlagen, existiert der Geckodriver im richtigen Pfad?!? ---> README")
 
 
-
 class JsFoodsharingSiteScraper:
-    #No error handeling, its better to crash, than do something wrong when creating
+    # No error handeling, its better to crash, than do something wrong when creating
     # Events, furthermore Events with google.location with route
 
     def __init__(self, login_name, password, programm_used_first_time, run_automated=True, debug=modification.debug()):
 
-        #todo vllt sollte man den js_sitescraper sogar noch threaden,
-        # wenn er arbeitet während das programm schon mal weiter läuft und gleichzeitig
-        # schon mal die google daten holt würde es das ganze ncoh einen tick bewschleunigen
-
         self.f = Fore.CYAN
 
         self.programm_used_first_time = programm_used_first_time
-        self.personal_informations_url =None
+        self.personal_informations_url = None
         self.actual_url = None
         self._events = None
-        self.first =None
+        self.first = None
 
         self.dates = []
         self.companys = []
@@ -89,7 +86,7 @@ class JsFoodsharingSiteScraper:
             self.all_events = self.runCompleteJob(login_name, password)
 
     @property
-    def fs_dashbord_url(self):
+    def fs_dashboard_url(self):
         return f"{modification.fsBaseUrl()}{modification.fsDashbordPostfix()}"
 
     @property
@@ -97,18 +94,15 @@ class JsFoodsharingSiteScraper:
         try:
             return self.personal_informations_url.split("/")[-1]
         except Exception as e:
-            print(f"{Fore.RED}ERROR #90uo43öljknwer -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+            print(f"{Fore.RED}ERROR #90uo43öljknwer -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, "
+                  f"{repr(e)},  {e.__cause__}{Fore.RESET}")
             print(f"{self.f}Es steht noch keine Informationen über die Nutzer_Id bereit {Fore.RESET}")
 
     def allFsEvents(self):
         return self.all_events
 
-    def closeBrowsdr(self):
+    def closeBrowser(self):
         pass
-
-
-
-
 
     def gatherTimesCompanysAndCompanySiteUrlsFromPersonalProfilSite(self):
         """sammelt abhol_datums, betriebs namen, und betriebs_seite_urls
@@ -123,15 +117,12 @@ class JsFoodsharingSiteScraper:
 
         abhol_dates = [x.text for i, x in enumerate(date_company_link_snipets) if i % 2 == 0]
         companies = [x.text for i, x in enumerate(date_company_link_snipets) if i % 2 == 1]
-        urls = [f"{snipet.get_attribute('href')}" for i, snipet in enumerate(date_company_link_snipets) if i % 2 ==1]
+        urls = [f"{snipet.get_attribute('href')}" for i, snipet in enumerate(date_company_link_snipets) if i % 2 == 1]
 
         print(f"{self.f}links: {urls}\ndates: {abhol_dates}\ncompanys: {companies}{Fore.RESET}")
         assert len(abhol_dates) == len(companies) == len(urls)
 
         return abhol_dates, companies, urls
-
-
-
 
     def getCompanyAdressFromUrl(self, url):
         """
@@ -147,8 +138,7 @@ class JsFoodsharingSiteScraper:
             except:
                 time.sleep(0.01)
 
-
-    def isoDateFromDateString(self, date_string): #datetime.datetime
+    def isoDateFromDateString(self, date_string):  # datetime.datetime
         """
         wandelt den datestring der aus der webseite gezogen wird vollautomatisch in eine vergleichbare und
         per timedelta veränderbares "iso_date" eine datetime.datetime() um
@@ -156,17 +146,19 @@ class JsFoodsharingSiteScraper:
         :param date_string: z.B. '✓ Samstag, 2. Mai, 19:05 Uhr' oder '✓ Morgen, 16:45 Uhr'
         :return: datetime.datetime(2020, 5, 1, 16, 45)
         """
-        #todo modularize this here!!!
+        # todo modularize this here!!!
         date = date_string.replace(".", "")
-        date = date.replace(",", "")        #'✓ Samstag, 2. Mai, 19:05 Uhr' -->  ['✓', 'Samstag', '2', 'Mai', '19:05', 'Uhr']   len(6)
-        date = date.split()                 #'✓ Morgen, 16:45 Uhr' --> ['✓', 'Morgen', '16:45', 'Uhr']   len(4)
+        date = date.replace(",",
+                            "")  # '✓ Samstag, 2. Mai, 19:05 Uhr' -->  ['✓', 'Samstag', '2', 'Mai', '19:05', 'Uhr']   len(6)
+        date = date.split()  # '✓ Morgen, 16:45 Uhr' --> ['✓', 'Morgen', '16:45', 'Uhr']   len(4)
 
         jetzt = time.localtime()
         jetzt_list = list(jetzt)[:-2]
         heute = datetime.datetime(*jetzt_list)
 
-        dm = {"year":jetzt[0], "Dez":12, "Nov":11, "Okt":10, "Sep":9, "Aug":8, "Juli":7, "Juni":6, "Mai":5, "Apr":4, "Mär":3, "Feb":2,
-              "Jan":1, "Tag":jetzt[2], "month":jetzt[1]}
+        dm = {"year": jetzt[0], "Dez": 12, "Nov": 11, "Okt": 10, "Sep": 9, "Aug": 8, "Juli": 7, "Juni": 6, "Mai": 5,
+              "Apr": 4, "Mär": 3, "Feb": 2,
+              "Jan": 1, "Tag": jetzt[2], "month": jetzt[1]}
 
         if len(date) == 4:
             zeit = [int(x) for x in date[2].split(":")]
@@ -188,22 +180,23 @@ class JsFoodsharingSiteScraper:
 
     def clickElementLeadingToOwnProfile(self):
         """sucht und drückt das element das zum eigenen profil führt"""
-        #self.webdriver.find_element_by_partial_link_text("Hallo").click()
+        # self.webdriver.find_element_by_partial_link_text("Hallo").click()
         print(f"profilePathClassName: {modification.profilePathClassName()}")
         button = self.webdriver.find_element_by_class_name(modification.profilePathClassName())
         button.click()
 
-    def extractUserIdFromUrl(self, url):
+    @staticmethod
+    def extractUserIdFromUrl(url):
         """isoliert die fs-use-id aus der profile-url"""
         return url.split("/")[-1]
 
     def goToPersonalInformations(self):
         """sucht auf der hauptseite den link der zum eigenen profil führt und drückt ihn,
         wartet bis entsprechende seite geladen ist"""
-        self.getSiteByUrl(self.fs_dashbord_url)
+        self.getSiteByUrl(self.fs_dashboard_url)
 
         self.clickElementLeadingToOwnProfile()
-        self.waitForNextWebsite(self.fs_dashbord_url)
+        self.waitForNextWebsite(self.fs_dashboard_url)
         return self.webdriver.current_url
 
     def waitForNextWebsite(self, actual_url):
@@ -227,8 +220,6 @@ class JsFoodsharingSiteScraper:
         """läd eine fs Profilseite anhand der fs-nutzere-id"""
         return f"{modification.fsBaseUrl()}{modification.profileSnipet()}{id}"
 
-
-
     def registerNewProgrammUserAsSebFriend(self):
         """geht auf mein Profil und klickt "ich kenne" also eine "Freundschaftsanfrage" """
         if self.programm_used_first_time:
@@ -237,7 +228,8 @@ class JsFoodsharingSiteScraper:
                 self.clickButtonByLinkText(modification.linkTextICHKENNE())
                 print("Als Nutzer des Programms registriert")
             except Exception as e:
-                print(f"{Fore.RED}ERROR #09oiökwerpu --> Konnte programm nicht registrieren {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+                print(
+                    f"{Fore.RED}ERROR #09oiökwerpu --> Konnte programm nicht registrieren {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
 
     def getSiteByUrl(self, url):
         """fordert webdrifer auf seite mit gewünschter url zu laden
@@ -259,7 +251,6 @@ class JsFoodsharingSiteScraper:
         print(f"Erfolgreich eingeloggt")
         return f"Erfolgreich eingeloggt"
 
-
     def runCompleteJob(self, login_name, password):
         """
         kompletter durchlauf des scraping vorgangs
@@ -280,11 +271,12 @@ class JsFoodsharingSiteScraper:
         isodates = [self.isoDateFromDateString(date) for date in dates]
         print(f"automated run step 6")
         print(f"isodates: {isodates}")
-        companys_to_urls_mapping = {company:url for company, url in zip(companys, urls)}
+        companys_to_urls_mapping = {company: url for company, url in zip(companys, urls)}
         print(f"automated run step 7")
         print(f"{self.f}companys_to_urls_maping: {companys_to_urls_mapping} {Fore.RESET}")
 
-        companys_to_address_mapping = {company:self.getCompanyAdressFromUrl(url) for company, url in companys_to_urls_mapping.items()}
+        companys_to_address_mapping = {company: self.getCompanyAdressFromUrl(url) for company, url in
+                                       companys_to_urls_mapping.items()}
         print(companys_to_address_mapping)
         companys_to_address_mapping = self.makeAdressMappingReadable(companys_to_address_mapping)
         print(f"{self.f}address_mapping {companys_to_address_mapping} {Fore.RESET}")
@@ -292,9 +284,8 @@ class JsFoodsharingSiteScraper:
         print(f"automated run step 8")
         all_events = self.createEvents(isodates, companys, companys_to_address_mapping)
         print(f"{self.f}all_events: {all_events} {Fore.RESET}")
-        self.closeBrowsdr()
+        self.closeBrowser()
         return all_events
-
 
     def createEvents(self, isodates, companys, companys_to_address_mapping, duration=modification.standardDuration()):
         all_events = []
@@ -304,7 +295,7 @@ class JsFoodsharingSiteScraper:
             all_events.append(event_here)
         return all_events
 
-    def makeAdressMappingReadable(self, companys_to_address_mapping:dict):
+    def makeAdressMappingReadable(self, companys_to_address_mapping: dict):
         return {company: address[8:] for company, address in companys_to_address_mapping.items()}
 
 
@@ -317,12 +308,7 @@ if __name__ == "__main__":
     # webdriver2 = fs_site_scraper.CrossPlatformJS_Driver(debug=False)
 
     scraper = JsFoodsharingSiteScraper(login_name=modification.email(), password=modification.psd(),
-                                                       programm_used_first_time=False,
-                                                       run_automated=True)
+                                       programm_used_first_time=False,
+                                       run_automated=True)
 
     print(f"erreicht")
-
-
-
-
-
