@@ -11,13 +11,11 @@ import fs_site_scraper
 import google_tools
 import modification
 import sc
-from fs_site_scraper import JsFoodsharingSiteScraper
 
 sg.theme("DarkTanBlue")
 
 
-class GoogleCalendarMainGui():
-    site_scraper: JsFoodsharingSiteScraper
+class GoogleCalendarMainGui:
 
     def __init__(self):
         self.actual_time = datetime.datetime(*time.localtime()[:6])

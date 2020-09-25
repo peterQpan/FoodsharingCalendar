@@ -90,8 +90,12 @@ def calendar_id():
 
 
 def programmUsedFirst():
+    """
+    checks if there is an already self created file
+    and determines from this if program is used the first time
+    :return: bool
+    """
     if os.path.exists(os.path.join(".", "soondong.tmp")):
-        # todo richtige speicherdatei suchen
         return False
     return True
 
