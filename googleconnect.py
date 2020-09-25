@@ -1,7 +1,7 @@
 import datetime
 import json
-import pickle
 import os.path
+import pickle
 import sys
 import time
 import tkinter.messagebox
@@ -9,13 +9,15 @@ import warnings
 from time import strptime
 from warnings import warn
 
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
+from PySimpleGUI import Print
 from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from pip._vendor.colorama import Fore
+
 
 import randomone
 from google_tools import Event
-from pip._vendor.colorama import Fore
 from randomone import SomethingDing
 
 
@@ -49,10 +51,7 @@ class GoogleEventCalendar:
                     flow = InstalledAppFlow.from_client_config(
                             json.loads(some.load()[0]), self.scope)
 
-                    # flow = InstalledAppFlow.from_client_secrets_file(
-                    #     self.creds, self.scope)
                     self.queue.put(f"Google Verbindung hergestellt")
-
                     creds = flow.run_local_server(port=0)
                 with open(self.entry_token, 'wb') as token:
                     pickle.dump(creds, token)
@@ -61,6 +60,8 @@ class GoogleEventCalendar:
 
         except Exception as e:
             print(f"{Fore.RED}ERROR #aiuii8uljkne23 -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+            Print("Probleme sich mit Google zu verbinden, oder Berechtigung zu erhalten")
+
 
             if not break_next:
                 #just a second try to connect
@@ -70,7 +71,7 @@ class GoogleEventCalendar:
                     print(f"{Fore.RED}ERROR #ölasuw90oih234 -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
                 return self._connect(break_next=True)
             else:
-                if tkinter.messagebox.showerror(title="Sorry!!!!", message="etwas ist schief gegangen, versuche es nochmal!!!"):
+                if Print("Sorry!!!! Etwas ist schief gegangen, versuche es nochmal!!!"):
                     sys.exit(666)
         return build('calendar', 'v3', credentials=creds)
 
@@ -114,9 +115,7 @@ class GoogleEventCalendar:
                     end = start + datetime.timedelta(days=1)
                 except Exception as e:
                     print(f"{Fore.RED}ERROR #90092i4joilj45 --> {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-
-                    warnings.warn(f"Some unusual key: for debuging send the following lines to sebmueller.sb@gmail.com!!! thank you")
-                    print(g_event)
+                    Print(f"Unübliches ereigniss bitte sende die folgenden Zeilen an sebmueller.sb@gmail.com:\n\n{g_event}\n\nDanke")
                     continue
 
             print(f"{start} bis {end}")
@@ -126,7 +125,6 @@ class GoogleEventCalendar:
                     otw.append(g_event[tag])
                 except KeyError as e:
                     print(f"{Fore.RED}ERROR #kß923oijksdfas -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-
                     otw.append("")
             events.append(Event(start=start, end=end, summary=otw[0], description=otw[1], location=otw[2]))
 

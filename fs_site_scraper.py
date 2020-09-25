@@ -7,6 +7,7 @@ import time
 from pip._vendor.colorama import Fore
 from selenium import webdriver
 import selenium.webdriver.firefox.options
+from PySimpleGUI import Print
 
 import google_tools
 import modification
@@ -54,8 +55,8 @@ class CrossPlatformJS_Driver(webdriver.Firefox):
                 print(f"{self.f}geladen wurde: {driver_file_path} {Fore.RESET}")
                 return
             except Exception as e:
-                print(f"{Fore.RED}ERROR #09kölkweröklqw --> Treiber laden fehlgeschlagen {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-
+                (f"{Fore.RED}ERROR #09kölkweröklqw --> Treiber laden fehlgeschlagen {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+                Print("Webbrowser-Driver fehlgeschlagen, existiert der Geckodriver im richtigen Pfad?!? ---> README")
 
 
 
@@ -97,7 +98,6 @@ class JsFoodsharingSiteScraper:
             return self.personal_informations_url.split("/")[-1]
         except Exception as e:
             print(f"{Fore.RED}ERROR #90uo43öljknwer -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-
             print(f"{self.f}Es steht noch keine Informationen über die Nutzer_Id bereit {Fore.RESET}")
 
     def allFsEvents(self):
@@ -238,7 +238,6 @@ class JsFoodsharingSiteScraper:
                 print("Als Nutzer des Programms registriert")
             except Exception as e:
                 print(f"{Fore.RED}ERROR #09oiökwerpu --> Konnte programm nicht registrieren {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-            #self.webdriver.close()
 
     def getSiteByUrl(self, url):
         """fordert webdrifer auf seite mit gewünschter url zu laden

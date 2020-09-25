@@ -70,8 +70,6 @@ class GoogleCalendarMainGui():
                     string_here += f"{event[0]}\n"
                 else:
                     string_here += f"Termin1: {eins}\nmit\nTermin2: {zwei}\n\n"
-                # except Exception as e:
-                #     print(f"{Fore.RED}ERROR #90i32jkjn32fd -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
 
         string_here += "\n" * 3
         return string_here

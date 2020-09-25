@@ -19,6 +19,8 @@ import PySimpleGUI as sg
 #             except Exception as e:
 #                 print(f"{Fore.RED}ERROR #09iklnlkasf --> Fehler bei user_modification {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
 #
+
+
 #todo hier gehts weiter: hier schon int zu machen gibt in der popup version int.replace error
 def loadUserConfigurations(file_name="modifications.ini"):
     user_configs = {}
