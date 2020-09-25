@@ -61,24 +61,76 @@ class CrossPlatformJS_Driver(webdriver.Firefox):
                 Print("Webbrowser-Driver fehlgeschlagen, existiert der Geckodriver im richtigen Pfad?!? ---> README")
 
 
-class JsFoodsharingSiteScraper:
+class BaseFoodsharingSiteScraper:
+
+    def __init__(self, login_name, password, debug):
+        self.webdriver = CrossPlatformJS_Driver(debug=debug)
+        if login_name and password:
+            self.logingIn(login_name=login_name, password=password)
+
+
+    def waitForNextWebsite(self, actual_url):
+        """pausiert das programm bis die nächste angeforderte seite geladen ist"""
+        while actual_url == self.webdriver.current_url:
+            time.sleep(0.1)
+        self.actual_url = self.webdriver.current_url
+
+    def waitForDemandedWebsite(self, demanded_website):
+        "wartet darauf bis gewünschte seite geladen ist pausiert das programm bis dahin"
+        while self.webdriver.current_url != demanded_website:
+            time.sleep(0.1)
+        self.actual_url = self.webdriver.current_url
+
+
+    def getSiteByUrl(self, url):
+        """fordert webdrifer auf seite mit gewünschter url zu laden
+        und wartet bis entsprechende seite die aktuelle seite ist"""
+        print(f"Url in getSiteByUrl() angefordert: {url}")
+        self.webdriver.get(url)
+        self.waitForDemandedWebsite(demanded_website=url)
+
+
+    def logingIn(self, login_name, password):
+        """
+        logs in at foodsharing.de
+        """
+        self.getSiteByUrl(modification.fsBaseUrl())
+        self.webdriver.find_element_by_id(modification.loginEmailLable()).send_keys(login_name)
+        self.webdriver.find_element_by_id(modification.loginPasswordLable()).send_keys(password)
+        self.webdriver.find_element_by_class_name(modification.loginSubmitButton()).click()
+        self.waitForNextWebsite(modification.fsBaseUrl())
+        print(f"Erfolgreich eingeloggt")
+        return f"Erfolgreich eingeloggt"
+
+    def closeBrowser(self):
+        self.webdriver.close()
+        pass
+
+    def clickButtonByLinkText(self, link_text):
+        """sucht button auf der seite anhand des linktextes und drückt ihn"""
+        button = self.webdriver.find_element_by_partial_link_text(link_text)
+        button.click()
+
+
+
+
+class AutomatedFSdateSiteScraper(BaseFoodsharingSiteScraper):
     # No error handeling, its better to crash, than do something wrong when creating
     # Events, furthermore Events with google.location with route
 
     def __init__(self, login_name, password, programm_used_first_time, run_automated=True, debug=modification.debug()):
 
+        super(AutomatedFSdateSiteScraper, self).__init__(login_name=login_name, password=password, debug=debug)
         self.f = Fore.CYAN
 
         self.programm_used_first_time = programm_used_first_time
         self.personal_informations_url = None
         self.actual_url = None
         self._events = None
-        self.first = None
 
         self.dates = []
         self.companys = []
         self.addresses = []
-        self.webdriver = CrossPlatformJS_Driver(debug=debug)
 
         print(f"{self.f}{self.__class__.__name__} geladen {Fore.RESET}")
 
@@ -101,8 +153,6 @@ class JsFoodsharingSiteScraper:
     def allFsEvents(self):
         return self.all_events
 
-    def closeBrowser(self):
-        pass
 
     def gatherTimesCompanysAndCompanySiteUrlsFromPersonalProfilSite(self):
         """sammelt abhol_datums, betriebs namen, und betriebs_seite_urls
@@ -113,7 +163,7 @@ class JsFoodsharingSiteScraper:
 
         content_box = self.webdriver.find_element_by_class_name(modification.dateAndCompanyListKey())
         date_company_link_snipets = content_box.find_elements_by_tag_name("a")
-        assert len(date_company_link_snipets) % 3 == 0
+        assert len(date_company_link_snipets) % 2 == 0
 
         abhol_dates = [x.text for i, x in enumerate(date_company_link_snipets) if i % 2 == 0]
         companies = [x.text for i, x in enumerate(date_company_link_snipets) if i % 2 == 1]
@@ -180,7 +230,6 @@ class JsFoodsharingSiteScraper:
 
     def clickElementLeadingToOwnProfile(self):
         """sucht und drückt das element das zum eigenen profil führt"""
-        # self.webdriver.find_element_by_partial_link_text("Hallo").click()
         print(f"profilePathClassName: {modification.profilePathClassName()}")
         button = self.webdriver.find_element_by_class_name(modification.profilePathClassName())
         button.click()
@@ -199,22 +248,7 @@ class JsFoodsharingSiteScraper:
         self.waitForNextWebsite(self.fs_dashboard_url)
         return self.webdriver.current_url
 
-    def waitForNextWebsite(self, actual_url):
-        """pausiert das programm bis die nächste angeforderte seite geladen ist"""
-        while actual_url == self.webdriver.current_url:
-            time.sleep(0.1)
-        self.actual_url = self.webdriver.current_url
 
-    def waitForDemandedWebsite(self, demanded_website):
-        "wartet darauf bis gewünschte seite geladen ist pausiert das programm bis dahin"
-        while self.webdriver.current_url != demanded_website:
-            time.sleep(0.1)
-        self.actual_url = self.webdriver.current_url
-
-    def clickButtonByLinkText(self, link_text):
-        """sucht button auf der seite anhand des linktextes und drückt ihn"""
-        button = self.webdriver.find_element_by_partial_link_text(link_text)
-        button.click()
 
     def fsUrlByProfileIdy(self, id=315541):
         """läd eine fs Profilseite anhand der fs-nutzere-id"""
@@ -231,25 +265,7 @@ class JsFoodsharingSiteScraper:
                 print(
                     f"{Fore.RED}ERROR #09oiökwerpu --> Konnte programm nicht registrieren {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
 
-    def getSiteByUrl(self, url):
-        """fordert webdrifer auf seite mit gewünschter url zu laden
-        und wartet bis entsprechende seite die aktuelle seite ist"""
-        print(f"Url in getSiteByUrl() angefordert: {url}")
-        self.webdriver.get(url)
-        self.waitForDemandedWebsite(demanded_website=url)
 
-    def logingIn(self, login_name, password):
-        """
-        logs in at foodsharing.de
-        """
-        self.getSiteByUrl(modification.fsBaseUrl())
-        self.webdriver.find_element_by_id(modification.loginEmailLable()).send_keys(login_name)
-        self.webdriver.find_element_by_id(modification.loginPasswordLable()).send_keys(password)
-        self.webdriver.find_element_by_class_name(modification.loginSubmitButton()).click()
-        self.waitForNextWebsite(modification.fsBaseUrl())
-
-        print(f"Erfolgreich eingeloggt")
-        return f"Erfolgreich eingeloggt"
 
     def runCompleteJob(self, login_name, password):
         """
@@ -257,8 +273,6 @@ class JsFoodsharingSiteScraper:
         :return:
         """
         print(f"automated run step 1")
-        self.logingIn(login_name, password)
-        print(f"automated run step 2")
         self.registerNewProgrammUserAsSebFriend()
         print(f"automated run step 3")
         self.personal_informations_url = self.goToPersonalInformations()
@@ -307,8 +321,8 @@ if __name__ == "__main__":
     # webdriver = fs_site_scraper.CrossPlatformJS_Driver()
     # webdriver2 = fs_site_scraper.CrossPlatformJS_Driver(debug=False)
 
-    scraper = JsFoodsharingSiteScraper(login_name=modification.email(), password=modification.psd(),
-                                       programm_used_first_time=False,
-                                       run_automated=True)
+    scraper = AutomatedFSdateSiteScraper(login_name=modification.email(), password=modification.psd(),
+                                         programm_used_first_time=False,
+                                         run_automated=True)
 
     print(f"erreicht")
