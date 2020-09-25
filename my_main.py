@@ -15,7 +15,7 @@ import modification
 import PySimpleGUI as sg
 
 import sc
-from fs_site_scraper import AutomatedFSdateSiteScraper
+from fs_site_scraper import AutomatedFSDateSiteScraper
 
 sg.theme("DarkTanBlue")
 
@@ -24,7 +24,7 @@ def googleCalendarMain():
 
     now_time = datetime.datetime(*time.localtime()[:6])
 
-    fs_site_scraper = fss.AutomatedFSdateSiteScraper(
+    fs_site_scraper = fss.AutomatedFSDateSiteScraper(
             login_name=modification.email(), password=modification.psd(),
             programm_used_first_time=modification.programmUsedFirst(), debug=modification.debug())
     all_fs_events = fs_site_scraper.allFsEvents()
@@ -91,7 +91,7 @@ def logintWindow():
 
 
 class GoogleCalendarMainGui():
-    site_scraper: AutomatedFSdateSiteScraper
+    site_scraper: AutomatedFSDateSiteScraper
 
     def __init__(self):
         self.actual_time = datetime.datetime(*time.localtime()[:6])
@@ -156,7 +156,7 @@ class GoogleCalendarMainGui():
                     sc.saveFsLoginData(email=email, psd=psd)
 
             try:
-                self.site_scraper = fs_site_scraper.AutomatedFSdateSiteScraper(
+                self.site_scraper = fs_site_scraper.AutomatedFSDateSiteScraper(
                         login_name=email, password=psd, programm_used_first_time=modification.programmUsedFirst(),
                         debug=modification.debug())  # todo debug weg
 

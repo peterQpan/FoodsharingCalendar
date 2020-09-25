@@ -119,7 +119,7 @@ class GoogleCalendarMainGui:
     def fsLogin(self):
         email, psd = self.fsLoginData()
         try:
-            site_scraper = fs_site_scraper.AutomatedFSdateSiteScraper(
+            site_scraper = fs_site_scraper.AutomatedFSDateSiteScraper(
                 login_name=email, password=psd, programm_used_first_time=modification.programmUsedFirst(),
                 debug=modification.debug())
             return site_scraper

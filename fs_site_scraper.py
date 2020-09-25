@@ -61,9 +61,9 @@ class CrossPlatformJS_Driver(webdriver.Firefox):
                 Print("Webbrowser-Driver fehlgeschlagen, existiert der Geckodriver im richtigen Pfad?!? ---> README")
 
 
-class BaseFoodsharingSiteScraper:
+class BaseSiteScraper:
 
-    def __init__(self, login_name, password, debug):
+    def __init__(self, login_name, password, debug=True):
         self.webdriver = CrossPlatformJS_Driver(debug=debug)
         if login_name and password:
             self.logingIn(login_name=login_name, password=password)
@@ -114,13 +114,13 @@ class BaseFoodsharingSiteScraper:
 
 
 
-class AutomatedFSdateSiteScraper(BaseFoodsharingSiteScraper):
+class AutomatedFSDateSiteScraper(BaseSiteScraper):
     # No error handeling, its better to crash, than do something wrong when creating
     # Events, furthermore Events with google.location with route
 
     def __init__(self, login_name, password, programm_used_first_time, run_automated=True, debug=modification.debug()):
 
-        super(AutomatedFSdateSiteScraper, self).__init__(login_name=login_name, password=password, debug=debug)
+        super(AutomatedFSDateSiteScraper, self).__init__(login_name=login_name, password=password, debug=debug)
         self.f = Fore.CYAN
 
         self.programm_used_first_time = programm_used_first_time
@@ -321,7 +321,7 @@ if __name__ == "__main__":
     # webdriver = fs_site_scraper.CrossPlatformJS_Driver()
     # webdriver2 = fs_site_scraper.CrossPlatformJS_Driver(debug=False)
 
-    scraper = AutomatedFSdateSiteScraper(login_name=modification.email(), password=modification.psd(),
+    scraper = AutomatedFSDateSiteScraper(login_name=modification.email(), password=modification.psd(),
                                          programm_used_first_time=False,
                                          run_automated=True)
 
