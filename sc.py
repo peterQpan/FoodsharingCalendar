@@ -68,7 +68,7 @@ def saveCredentialsToSecureFile(input_file_path=r"/home/ich/PycharmProjects/food
     sc_tool.save(content)
 
 
-def saveLoginData(email, psd, save_file_name="soondong.tmp"):
+def saveFsLoginData(email, psd, save_file_name="soondong.tmp"):
     print(f"#92876832 saveLoginData")
     sc_tool = SomethingDing(save_file_name)
     sc_tool.save(email, psd)
@@ -80,7 +80,7 @@ def loadLoginData(save_file_name="soondong.tmp"):
 if __name__ == '__main__':
     email = "peTerfrOst1713@gmail.com"
     psd = "lakjnsad09uwiihl2ijnldfkjnjhbk.jsiuh8ewuoilqnkjbdhjbfsdoivhjoiuhiluh4ljbkl1b23knbbsd"
-    saveLoginData(email=email, psd=psd)
+    saveFsLoginData(email=email, psd=psd)
     time.sleep(1)
     new_email, new_psd = loadLoginData()
     print(f"1. {email == new_email}, 2. {psd == new_psd}")

@@ -153,7 +153,7 @@ class GoogleCalendarMainGui():
                 shall_save = values["speichern"]
                 if shall_save:
                     print(f"#98234809 shall save")
-                    sc.saveLoginData(email=email, psd=psd)
+                    sc.saveFsLoginData(email=email, psd=psd)
 
             try:
                 self.site_scraper = fs_site_scraper.JsFoodsharingSiteScraper(

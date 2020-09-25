@@ -65,7 +65,7 @@ class GoogleCalendarMainGui:
     def emailIsValid(email):
         return re.fullmatch(r"[^@]+@[^@]+\.[^@]+", email)
 
-    def loginWindow(self):
+    def getFsLoginDataWindow(self):
         login_window = sg.Window('Login Window',
                                  [[sg.T(text='Email:', size=(8, 1)), sg.In(key='Email'), ],
                                   [sg.T(text="Passwort:", size=(8, 1)), sg.In(key="psd", password_char="*")],
@@ -83,6 +83,17 @@ class GoogleCalendarMainGui:
         login_window.close()
         return values
 
+    def getNewFsLoginData(self):
+        """
+        gets new foodsharing login data from user and returns them
+        :return: email:str, psd:str, save:bool
+        """
+        values = self.getFsLoginDataWindow()
+        email = values["Email"]
+        psd = values["psd"]
+        save = values["speichern"]
+        return email, psd, save
+
     @staticmethod
     def getSavedLoginData():
         try:
@@ -93,23 +104,28 @@ class GoogleCalendarMainGui:
             email, psd = None, None
         return email, psd
 
-    def fsLogin(self):
+    def fsLoginData(self):
+        """
+        gets FS login data either from file or from user, saves data if user ask for
+        :return: email, psd
+        """
         email, psd = self.getSavedLoginData()
-        if not email:
-            values: dict = self.loginWindow()
-            email = values["Email"]
-            psd = values["psd"]
-            if values["speichern"]:
-                sc.saveLoginData(values["Email"], values["psd"])
+        if not email and psd:
+            email, psd, save = self.getNewFsLoginData()
+            if save:
+                sc.saveFsLoginData(email=email, psd=psd)
+        return email, psd
 
+    def fsLogin(self):
+        email, psd = self.fsLoginData()
         try:
             site_scraper = fs_site_scraper.JsFoodsharingSiteScraper(
                 login_name=email, password=psd, programm_used_first_time=modification.programmUsedFirst(),
-                debug=modification.debug())  # todo debug weg
+                debug=modification.debug())
             return site_scraper
         except Exception as e:
-            print(
-                f"{Fore.RED}ERROR #9808230832 --> {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+            print(f"{Fore.RED}ERROR #9808230832 --> {e.__traceback__.tb_lineno}, "
+                  f"{repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
             sg.Print(f"FEHLER!!!! Überprüfe zugangsdaten oder Internetverbindung")
 
     @classmethod
@@ -153,7 +169,8 @@ class GoogleCalendarMainGui:
         print(f"complete run: 10; response: {response}")
 
         if response[0] == "Ok":
-            print(f"complete run: 11; darstellung von n,mc,ce: {(new_events, maybe_changed_events, conflicting_events)}")
+            print(
+                f"complete run: 11; darstellung von n,mc,ce: {(new_events, maybe_changed_events, conflicting_events)}")
             duplikate_free_events = google_tools.Event.stripDuplicates(maybe_changed_events, conflicting_events,
                                                                        all_google_events)
             all_events = [*new_events, *duplikate_free_events]
