@@ -3,6 +3,7 @@ import os
 import pickle
 import platform
 import queue
+import re
 import sys
 import threading
 import time
@@ -339,39 +340,35 @@ class AllMemberScraper(BaseSiteScraper):
         super(AllMemberScraper, self).__init__(login_name=email, password=psd, debug=True)
         self.member_container = tools.MemberContainer()
 
-    def getAllMembers(self, first_member_url="https://foodsharing.de/?page=bezirk&bid=159&sub=members"):
+        self.float_pattern = re.compile(r'[\d]*[.][\d]+')
+        self.int_pattern = re.compile(r"\d+")
 
+    def getAllMembers(self, first_member_url="https://foodsharing.de/?page=bezirk&bid=159&sub=members"):
+        """
+        gets all members of a certain district, starting with the first url to the first page, and klicks
+        itself next page, next page, next page and excerpts Name and url of these district members
+        and sets with thes information new members in self.member_container
+        :param first_member_url: url of districtt page to start with
+        """
         self.webdriver.implicitly_wait(10)
         self.getSiteByUrl(first_member_url)
         while True:
             member_names, member_urls = self.getAllMembersFromActualSite()
-
-            print(f"#230988320 member name anzahl: {len(member_names)}member names: {member_names}")
-            print(f"#230988320 member urls anzahl: {len(member_urls)}member names: {member_urls}")
             [self.member_container.setUser(member_url=member_url, member_name=member_name)
              for member_url, member_name in zip(member_urls, member_names)]
-            print(f"#9080980 member container: {self.member_container}")
-
             if not self.clickElementLeadingToNextPage():
                 break
-
         self.webdriver.implicitly_wait(0)
 
 
     def clickElementLeadingToNextPage(self):
         """sucht und drückt das element das zur nächsten Seite führt"""
-
         buttons = self.webdriver.find_elements_by_class_name("page-link")
         for button in buttons:
             if button.text == '›':
-
-                print(f"#743743743 disabled or not: {button.get_attribute('aria-disabled')}; type: {type(button.get_attribute('aria-disabled'))}")
                 if button.get_attribute('aria-disabled'):
-                    print(f"#89328923 exited: ")
                     return False
                 else:
-                    print(f"#9298379832 next button clicked: {button.text}")
-
                     button.click()
                     return True
 
@@ -426,21 +423,11 @@ class AllMemberScraper(BaseSiteScraper):
         for node in all_a_nodes:
             class_strig = node.get_attribute('class')
             if class_strig in banana_lable:
-                value = node.get_attribute("val")
-                print(f"#982375670923809 should be banana: {class_strig} value: {value}")
+                value_string = node.text
 
-                # value_string = node.text
-                # print(f"#982375670923809 should be banana: {class_name} value: {node.text}")
-                # last_value = ""
-                # try_value = ""
-                # for figure in value_string:
-                #     print(f"#6667776767677766 kind of figure>>>>>>: >{figure}< type: {type(figure)}")
-                #     try_value += figure
-                #     try:
-                #         last_value = float(try_value)
-                #     except:
-                #         result_dict["bananen"] = last_value
-                #         print(f"#923892368326 banane: {last_value}")
+                result_dict["Bananen"] = self.getAmountValue(value_string)
+        return result_dict
+
 
 
 
@@ -455,16 +442,26 @@ class AllMemberScraper(BaseSiteScraper):
             class_name = node.get_attribute('class')
             if class_name in achievement_lables.keys():
                 value_string = node.text.strip()
-                last_value = ""
-                try_value = ""
-                for figure in value_string:
-                    try_value += figure
-                    try:
-                        last_value = float(try_value)
-                    except:
-                        result_dict[achievement_lables[class_name]] = last_value
+                result_dict[achievement_lables[class_name]] = self.getAmountValue(value_string)
+
         return result_dict
 
+
+    def getAmountValue(self, string):
+        amount_f = re.findall(self.float_pattern, string)
+        if amount_f:
+            try:
+                return float(amount_f[0])
+            except Exception as e:
+                print(f"{Fore.RED}ERROR #9879778911 --> sting: {string}; amount_f: {amount_f} {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+        amount_i = re.findall(self.int_pattern, string)
+        if amount_i:
+            try:
+                return int(amount_i[0])
+            except Exception as e:
+                # print(f"t} : {}")
+                print(f"{Fore.RED}ERROR #98723239778911 --> sting: {string}; amount_i: {amount_i} {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+        return 0
 
 
     def getMemberDevotionData(self, result_dict):
@@ -473,8 +470,8 @@ class AllMemberScraper(BaseSiteScraper):
         all_p_nodes = self.webdriver.find_elements_by_tag_name("p")
 
 
-        devotion_attributes = [p_node.text for p_node in all_p_nodes if p_node.text]
-        for possible_attribute in devotion_attributes:
+        devotion_strings = [p_node.text for p_node in all_p_nodes if p_node.text]
+        for possible_attribute in devotion_strings:
             key, values = self.confirmData(data= possible_attribute, attributes= devotion_attributes)
             if key:
                 result_dict[key] = values
