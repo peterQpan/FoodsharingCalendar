@@ -1,7 +1,10 @@
 import datetime
 import os
+import pickle
 import platform
+import queue
 import sys
+import threading
 import time
 
 import selenium.webdriver.firefox.options
@@ -9,8 +12,10 @@ from PySimpleGUI import Print
 from pip._vendor.colorama import Fore
 from selenium import webdriver
 
+import email_and_psd
 import google_tools
 import modification
+import tools
 
 
 class UnknownOS(Exception):
@@ -20,7 +25,7 @@ class UnknownOS(Exception):
 class CrossPlatformJS_Driver(webdriver.Firefox):
     def __init__(self, debug=modification.debug()):  # super() wird in den funktionen gerufen
         self.f = Fore.MAGENTA
-        print(f"{self.f}{self.__class__.__name__} geladen {Fore.RESET}")
+        print(f"#09ui {self.f}{self.__class__.__name__} geladen {Fore.RESET}")
 
         self.loadSuatableJavaScripDriverOsDependend(debug=debug)
 
@@ -38,7 +43,7 @@ class CrossPlatformJS_Driver(webdriver.Firefox):
         elif "Win" in platform.system():
             self.loadRightDriverByBrutforce(path_string=".\\geckowin\\", options=options)
         elif "OS" in platform.system():
-            print("Apple?!? Pech!!! :P")
+            Print("#897uoin Apple?!? Pech!!! :P")
             time.sleep(sys.maxsize)
             sys.exit(666)
         else:
@@ -51,29 +56,44 @@ class CrossPlatformJS_Driver(webdriver.Firefox):
         for driver_file_name in drivers:
             driver_file_path = os.path.join(path_string, driver_file_name)
             try:
-                print(f"{self.f}geladen werden soll: {driver_file_path} {Fore.RESET}")
+                print(f"#98zihknm {self.f}geladen werden soll: {driver_file_path} {Fore.RESET}")
                 super().__init__(executable_path=driver_file_path, options=options)
-                print(f"{self.f}geladen wurde: {driver_file_path} {Fore.RESET}")
+                print(f"#9872u3n {self.f}geladen wurde: {driver_file_path} {Fore.RESET}")
                 return
             except Exception as e:
-                print(f"{Fore.RED}ERROR #09kölkweröklqw --> Treiber laden fehlgeschlagen {e.__traceback__.tb_lineno}, "
+                print(f"#0998iuh2gff2 {Fore.RED}ERROR #09kölkweröklqw --> Treiber laden fehlgeschlagen {e.__traceback__.tb_lineno}, "
                       f"{repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
                 Print("Webbrowser-Driver fehlgeschlagen, existiert der Geckodriver im richtigen Pfad?!? ---> README")
 
 
 class BaseSiteScraper:
 
-    def __init__(self, login_name, password, debug=True):
-        self.webdriver = CrossPlatformJS_Driver(debug=debug)
+    def __init__(self, login_name, password, debug):
         if login_name and password:
+            self.initiateWebdriver(debug=debug)
+            
             self.logingIn(login_name=login_name, password=password)
 
 
-    def waitForNextWebsite(self, actual_url):
-        """pausiert das programm bis die nächste angeforderte seite geladen ist"""
-        while actual_url == self.webdriver.current_url:
-            time.sleep(0.1)
+    def initiateWebdriver(self, debug):
+        self.webdriver = CrossPlatformJS_Driver(debug=debug)
+
+    def waitForNextWebsite(self, old_url, max_count = 150):
+        """pausiert das programm bis die nächste angeforderte seite geladen ist
+        :return next_website_url"""
+        while self.webdriver.current_url == old_url and max_count > 0:
+            print(f"#6767676 ausgelöst: {max_count}, current url: {self.webdriver.current_url}, old url: {old_url}")
+            max_count -= 1
+            time.sleep(0.2)
+        print(f"#123123 verlassen mit: {max_count} old url: {old_url}, current url: {self.webdriver.current_url}")
+
+        if max_count == 0:
+            print(f"#4343434 ausgelö0t: {True}")
+            return
+
         self.actual_url = self.webdriver.current_url
+        print(f"#93939393 actual_url: {self.actual_url}")
+        return self.actual_url
 
     def waitForDemandedWebsite(self, demanded_website):
         "wartet darauf bis gewünschte seite geladen ist pausiert das programm bis dahin"
@@ -85,7 +105,7 @@ class BaseSiteScraper:
     def getSiteByUrl(self, url):
         """fordert webdrifer auf seite mit gewünschter url zu laden
         und wartet bis entsprechende seite die aktuelle seite ist"""
-        print(f"Url in getSiteByUrl() angefordert: {url}")
+        # print(f"#lkkjhas89732 Url in getSiteByUrl() angefordert: {url}")
         self.webdriver.get(url)
         self.waitForDemandedWebsite(demanded_website=url)
 
@@ -99,11 +119,11 @@ class BaseSiteScraper:
         self.webdriver.find_element_by_id(modification.loginPasswordLable()).send_keys(password)
         self.webdriver.find_element_by_class_name(modification.loginSubmitButton()).click()
         self.waitForNextWebsite(modification.fsBaseUrl())
-        print(f"Erfolgreich eingeloggt")
+        print(f"#lkasjdlfk Erfolgreich eingeloggt")
         return f"Erfolgreich eingeloggt"
 
     def closeBrowser(self):
-        self.webdriver.close()
+        # self.webdriver.close()
         pass
 
     def clickButtonByLinkText(self, link_text):
@@ -132,7 +152,7 @@ class AutomatedFSDateSiteScraper(BaseSiteScraper):
         self.companys = []
         self.addresses = []
 
-        print(f"{self.f}{self.__class__.__name__} geladen {Fore.RESET}")
+        print(f"#870293uijkna {self.f}{self.__class__.__name__} geladen {Fore.RESET}")
 
         if run_automated:
             self.all_events = self.runCompleteJob(login_name, password)
@@ -146,9 +166,9 @@ class AutomatedFSDateSiteScraper(BaseSiteScraper):
         try:
             return self.personal_informations_url.split("/")[-1]
         except Exception as e:
-            print(f"{Fore.RED}ERROR #90uo43öljknwer -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, "
+            print(f"#lkkhasjlk {Fore.RED}ERROR #90uo43öljknwer -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, "
                   f"{repr(e)},  {e.__cause__}{Fore.RESET}")
-            print(f"{self.f}Es steht noch keine Informationen über die Nutzer_Id bereit {Fore.RESET}")
+            print(f"#lkjaksd {self.f}Es steht noch keine Informationen über die Nutzer_Id bereit {Fore.RESET}")
 
     def allFsEvents(self):
         return self.all_events
@@ -169,7 +189,7 @@ class AutomatedFSDateSiteScraper(BaseSiteScraper):
         companies = [x.text for i, x in enumerate(date_company_link_snipets) if i % 2 == 1]
         urls = [f"{snipet.get_attribute('href')}" for i, snipet in enumerate(date_company_link_snipets) if i % 2 == 1]
 
-        print(f"{self.f}links: {urls}\ndates: {abhol_dates}\ncompanys: {companies}{Fore.RESET}")
+        print(f"#98auih {self.f}links: {urls}\ndates: {abhol_dates}\ncompanys: {companies}{Fore.RESET}")
         assert len(abhol_dates) == len(companies) == len(urls)
 
         return abhol_dates, companies, urls
@@ -183,7 +203,7 @@ class AutomatedFSDateSiteScraper(BaseSiteScraper):
         while True:
             try:
                 adress_block = self.webdriver.find_element_by_id("inputAdress")
-                print(f"in getCompanyAdresse from url, ausgabe: {adress_block.text}")
+                print(f"#298i32 in getCompanyAdresse from url, ausgabe: {adress_block.text}")
                 return adress_block.text
             except:
                 time.sleep(0.01)
@@ -313,16 +333,181 @@ class AutomatedFSDateSiteScraper(BaseSiteScraper):
         return {company: address[8:] for company, address in companys_to_address_mapping.items()}
 
 
+class AllMemberScraper(BaseSiteScraper):
+    def __init__(self, email=email_and_psd.email, psd=email_and_psd.psd):
+
+        super(AllMemberScraper, self).__init__(login_name=email, password=psd, debug=True)
+        self.member_container = tools.MemberContainer()
+
+    def getAllMembers(self, first_member_url="https://foodsharing.de/?page=bezirk&bid=159&sub=members"):
+
+        self.webdriver.implicitly_wait(10)
+        self.getSiteByUrl(first_member_url)
+        while True:
+            member_names, member_urls = self.getAllMembersFromActualSite()
+
+            print(f"#230988320 member name anzahl: {len(member_names)}member names: {member_names}")
+            print(f"#230988320 member urls anzahl: {len(member_urls)}member names: {member_urls}")
+            [self.member_container.setUser(member_url=member_url, member_name=member_name)
+             for member_url, member_name in zip(member_urls, member_names)]
+            print(f"#9080980 member container: {self.member_container}")
+
+            if not self.clickElementLeadingToNextPage():
+                break
+
+        self.webdriver.implicitly_wait(0)
+
+
+    def clickElementLeadingToNextPage(self):
+        """sucht und drückt das element das zur nächsten Seite führt"""
+
+        buttons = self.webdriver.find_elements_by_class_name("page-link")
+        for button in buttons:
+            if button.text == '›':
+
+                print(f"#743743743 disabled or not: {button.get_attribute('aria-disabled')}; type: {type(button.get_attribute('aria-disabled'))}")
+                if button.get_attribute('aria-disabled'):
+                    print(f"#89328923 exited: ")
+                    return False
+                else:
+                    print(f"#9298379832 next button clicked: {button.text}")
+
+                    button.click()
+                    return True
+
+
+
+    def getAllMembersFromActualSite(self):
+        member_box = self.webdriver.find_element_by_class_name("table.b-table.table-hover.table-sm")
+        member_nodes = member_box.find_elements_by_tag_name("a")
+        member_names = [member_node.text for member_node in member_nodes]
+        member_urls = [member_node.get_attribute("href") for member_node in member_nodes]
+        return member_names, member_urls
+
+
+    def saveContainer(self, file_path="container.sav"):
+        with open(file_path, "wb") as fh:
+            pickle.dump(self.member_container, fh)
+        print(f"#6672763 member_container saved: {file_path}")
+
+    def loadContainer(self, file_path="container.sav"):
+        with open(file_path, "rb") as fh:
+            saved_container = pickle.load(fh)
+        saved_container.update(self.member_container)
+        self.member_container = saved_container
+        print(f"#9872340239 member_container loaded: {file_path} members: {len(self.member_container)}")
+
+
+
+    def __del__(self):
+        if self.webdriver:
+            self.webdriver.close()
+            
+    def getAllMemberDataFromSiteUrl(self, member_url):
+
+        result_dict = {}
+        self.getSiteByUrl(member_url)
+        
+
+        result_dict = self.getMemberDevotionData(result_dict=result_dict)
+
+        result_dict = self.getMemberAchievementData(result_dict=result_dict)
+
+        self.getMemberBananes(result_dict=result_dict)
+
+        print(f"#8727882929 data for {member_url}: {result_dict}")
+
+        return result_dict
+
+    def getMemberBananes(self, result_dict):
+        banana_lable = {"item stat_bananacount"}
+        all_a_nodes = self.webdriver.find_elements_by_tag_name("a")
+
+        for node in all_a_nodes:
+            class_strig = node.get_attribute('class')
+            if class_strig in banana_lable:
+                value = node.get_attribute("val")
+                print(f"#982375670923809 should be banana: {class_strig} value: {value}")
+
+                # value_string = node.text
+                # print(f"#982375670923809 should be banana: {class_name} value: {node.text}")
+                # last_value = ""
+                # try_value = ""
+                # for figure in value_string:
+                #     print(f"#6667776767677766 kind of figure>>>>>>: >{figure}< type: {type(figure)}")
+                #     try_value += figure
+                #     try:
+                #         last_value = float(try_value)
+                #     except:
+                #         result_dict["bananen"] = last_value
+                #         print(f"#923892368326 banane: {last_value}")
+
+
+
+    def getMemberAchievementData(self, result_dict):
+        achievement_lables = {"item stat_fetchweight": "abgeholt", "item stat_fetchcount": "Anzahl Abholungen",
+                              "item stat_postcount": "Posts erstellt", "item stat_basketcount": "Essenskörbe erstellt",
+                              #"item stat_bananacount": "Bananen"
+                              }
+        all_span_nodes = self.webdriver.find_elements_by_tag_name("span")
+
+        for node in all_span_nodes:
+            class_name = node.get_attribute('class')
+            if class_name in achievement_lables.keys():
+                value_string = node.text.strip()
+                last_value = ""
+                try_value = ""
+                for figure in value_string:
+                    try_value += figure
+                    try:
+                        last_value = float(try_value)
+                    except:
+                        result_dict[achievement_lables[class_name]] = last_value
+        return result_dict
+
+
+
+    def getMemberDevotionData(self, result_dict):
+        devotion_attributes = {"Botschafter", "Foodsaver in", "Stammbezirk", "Ansprechpartner", "Schlafmütze"}
+
+        all_p_nodes = self.webdriver.find_elements_by_tag_name("p")
+
+
+        devotion_attributes = [p_node.text for p_node in all_p_nodes if p_node.text]
+        for possible_attribute in devotion_attributes:
+            key, values = self.confirmData(data= possible_attribute, attributes= devotion_attributes)
+            if key:
+                result_dict[key] = values
+        return result_dict
+
+
+
+    def confirmData(self, data, attributes):
+        for attribute in attributes:
+            if attribute in data:
+                first, new_line, value_string = data.partition("\n")
+                values = value_string.split(", ")
+                return attribute, values
+        return False, False
+    
+
 if __name__ == "__main__":
-    modification.email()
-    modification.psd()
+    pass
+
+    # member_scraper = AllMemberScraper()
+    # member_scraper.getAllMembers()
+    # print(f"#ß0908998 {len(member_scraper.member_container)}")
+    # print(f"#987230 {[member_scraper.member_container[member_url]['name'] for member_url in member_scraper.member_container]}")
+    # member_scraper.saveContainer()
+
+
 
     # test1 = fs_site_scraper.CrossPlatformJS_Driver()
     # webdriver = fs_site_scraper.CrossPlatformJS_Driver()
     # webdriver2 = fs_site_scraper.CrossPlatformJS_Driver(debug=False)
 
-    scraper = AutomatedFSDateSiteScraper(login_name=modification.email(), password=modification.psd(),
-                                         programm_used_first_time=False,
-                                         run_automated=True)
+    # scraper = AutomatedFSDateSiteScraper(login_name=modification.email(), password=modification.psd(),
+    #                                      programm_used_first_time=False,
+    #                                      run_automated=True)
+    #
 
-    print(f"erreicht")
