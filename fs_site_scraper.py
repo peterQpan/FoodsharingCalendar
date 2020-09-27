@@ -396,7 +396,7 @@ class AllMemberScraper(BaseSiteScraper):
         return saved_container
 
 
-    def getAllMemberDataFromSiteUrl(self, member_url):
+    def getAllMemberDataFromSiteUrl(self, member_url, auto_update=True):
         """
         fetches all available information and data from fs_memper_profil_page
         :param member_url: url to member profile page
@@ -409,8 +409,10 @@ class AllMemberScraper(BaseSiteScraper):
         result_dict = self.getMemberAchievementData(result_dict=result_dict)
         result_dict = self.getMemberBananes(result_dict=result_dict)
         result_dict = self.getMemberShortInfos(result_dict=result_dict)
-        print(f"#8727882929 data for {member_url}: {result_dict}")
 
+        if auto_update:
+            self.member_container.updateUser(member_url, result_dict)
+        print(f"#9823982793 >>> for {member_url} member_dict: {self.member_container.getUser(member_url)}")
         return result_dict
 
     def getMemberBananes(self, result_dict):
@@ -518,7 +520,6 @@ class AllMemberScraper(BaseSiteScraper):
         for attribute in devotion_attributes:
             if attribute in data:
                 if exceptional_muetze_attribute in data:
-                    print(f"schlafmütze line>>> {data}")
                     return exceptional_muetze_attribute, self.evaluateSchlafmuetzeLine(data)
                 first, new_line, value_string = data.partition("\n")
                 values = value_string.split(", ")
@@ -539,6 +540,8 @@ class AllMemberScraper(BaseSiteScraper):
             pattern = r"\d\d\.\d\d\.\d\d\d\d" # should be enough
             start, ende = re.findall(pattern=pattern, string=time_details)
             return [start, ende, comment]
+
+    # def allMembersAsUsableRows
 
             
 
