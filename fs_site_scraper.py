@@ -408,6 +408,7 @@ class AllMemberScraper(BaseSiteScraper):
         result_dict = self.getMemberDevotionData(result_dict=result_dict)
         result_dict = self.getMemberAchievementData(result_dict=result_dict)
         result_dict = self.getMemberBananes(result_dict=result_dict)
+        result_dict = self.getMemberShortInfos(result_dict=result_dict)
         print(f"#8727882929 data for {member_url}: {result_dict}")
 
         return result_dict
@@ -472,6 +473,21 @@ class AllMemberScraper(BaseSiteScraper):
                 print(f"{Fore.RED}ERROR #98723239778911 --> sting: {string}; amount_i: {amount_i} {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
         return 0
 
+    def getMemberShortInfos(self, result_dict):
+        """
+        fetches "kennt Foodsaver" and "Abholquote" and saves them to result_dict
+        :param result_dict: dict to save to
+        :return: result dict
+        """
+        all_dd_nodes = self.webdriver.find_elements_by_tag_name("dd")
+        for dd_node in all_dd_nodes:
+            node_text = dd_node.text
+            node_value = self.getAmountValue(node_text)
+            if "Foodsaver" in node_text:
+                result_dict["kennt"] = node_value
+            elif "%" in node_text:
+                result_dict["Abholquote"] = node_value / 100
+        return result_dict
 
     def getMemberDevotionData(self, result_dict):
         """
@@ -479,31 +495,52 @@ class AllMemberScraper(BaseSiteScraper):
         :param result_dict: dict to save to
         :return: result dict
         """
-        devotion_attributes = {"Botschafter", "Foodsaver in", "Stammbezirk", "Ansprechpartner", "Schlafmütze"}
 
         all_p_nodes = self.webdriver.find_elements_by_tag_name("p")
 
         devotion_strings = [p_node.text for p_node in all_p_nodes if p_node.text]
         for possible_attribute in devotion_strings:
-            key, values = self.splitDevotionLine(data=possible_attribute, attributes=devotion_attributes)
+            key, values = self.splitDevotionLine(data=possible_attribute)
             if key:
                 result_dict[key] = values
         return result_dict
 
-    def splitDevotionLine(self, data, attributes):
+    def splitDevotionLine(self, data):
         """
         splits member devotion line in attribute and values
         :param data: devotion line
         :param attributes: possible bzw. allowed attributes
         :return: attribute, values
         """
-        for attribute in attributes:
+        devotion_attributes = {"Botschafter", "Foodsaver in", "Stammbezirk", "Ansprechpartner", "Schlafmütze"}
+        exceptional_muetze_attribute = "Schlafmütze"
+
+        for attribute in devotion_attributes:
             if attribute in data:
+                if exceptional_muetze_attribute in data:
+                    print(f"schlafmütze line>>> {data}")
+                    return exceptional_muetze_attribute, self.evaluateSchlafmuetzeLine(data)
                 first, new_line, value_string = data.partition("\n")
                 values = value_string.split(", ")
-                # todo schlafmütze must be better loked at, to extract dates as well
                 return attribute, values
         return False, False
+
+    def evaluateSchlafmuetzeLine(self, data):
+        """
+        decides between no time details, and specific date details and fetches them from data string
+        :param data: schlafmütze string
+        :return: either ["N/A", "N/A", comment] or [start_date, end_date, comment]
+        """
+
+        time_details, _, comment = data.partition("\n")
+        if "unbestimmte Zeit" in time_details:
+            return ["N/A", "N/A", comment]
+        else:
+            pattern = r"\d\d\.\d\d\.\d\d\d\d" # should be enough
+            start, ende = re.findall(pattern=pattern, string=time_details)
+            return [start, ende, comment]
+
+            
 
 
 if __name__ == "__main__":
