@@ -62,8 +62,9 @@ class CrossPlatformJS_Driver(webdriver.Firefox):
                 print(f"#9872u3n {self.f}geladen wurde: {driver_file_path} {Fore.RESET}")
                 return
             except Exception as e:
-                print(f"#0998iuh2gff2 {Fore.RED}ERROR #09kölkweröklqw --> Treiber laden fehlgeschlagen {e.__traceback__.tb_lineno}, "
-                      f"{repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+                print(
+                    f"#0998iuh2gff2 {Fore.RED}ERROR #09kölkweröklqw --> Treiber laden fehlgeschlagen {e.__traceback__.tb_lineno}, "
+                    f"{repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
                 Print("Webbrowser-Driver fehlgeschlagen, existiert der Geckodriver im richtigen Pfad?!? ---> README")
 
 
@@ -72,14 +73,13 @@ class BaseSiteScraper:
     def __init__(self, login_name, password, debug):
         if login_name and password:
             self.initiateWebdriver(debug=debug)
-            
-            self.logingIn(login_name=login_name, password=password)
 
+            self.logingIn(login_name=login_name, password=password)
 
     def initiateWebdriver(self, debug):
         self.webdriver = CrossPlatformJS_Driver(debug=debug)
 
-    def waitForNextWebsite(self, old_url, max_count = 150):
+    def waitForNextWebsite(self, old_url, max_count=150):
         """pausiert das programm bis die nächste angeforderte seite geladen ist
         :return next_website_url"""
         while self.webdriver.current_url == old_url and max_count > 0:
@@ -102,14 +102,12 @@ class BaseSiteScraper:
             time.sleep(0.1)
         self.actual_url = self.webdriver.current_url
 
-
     def getSiteByUrl(self, url):
         """fordert webdrifer auf seite mit gewünschter url zu laden
         und wartet bis entsprechende seite die aktuelle seite ist"""
         # print(f"#lkkjhas89732 Url in getSiteByUrl() angefordert: {url}")
         self.webdriver.get(url)
         self.waitForDemandedWebsite(demanded_website=url)
-
 
     def logingIn(self, login_name, password):
         """
@@ -131,8 +129,6 @@ class BaseSiteScraper:
         """sucht button auf der seite anhand des linktextes und drückt ihn"""
         button = self.webdriver.find_element_by_partial_link_text(link_text)
         button.click()
-
-
 
 
 class AutomatedFSDateSiteScraper(BaseSiteScraper):
@@ -167,13 +163,13 @@ class AutomatedFSDateSiteScraper(BaseSiteScraper):
         try:
             return self.personal_informations_url.split("/")[-1]
         except Exception as e:
-            print(f"#lkkhasjlk {Fore.RED}ERROR #90uo43öljknwer -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, "
-                  f"{repr(e)},  {e.__cause__}{Fore.RESET}")
+            print(
+                f"#lkkhasjlk {Fore.RED}ERROR #90uo43öljknwer -->  {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, "
+                f"{repr(e)},  {e.__cause__}{Fore.RESET}")
             print(f"#lkjaksd {self.f}Es steht noch keine Informationen über die Nutzer_Id bereit {Fore.RESET}")
 
     def allFsEvents(self):
         return self.all_events
-
 
     def gatherTimesCompanysAndCompanySiteUrlsFromPersonalProfilSite(self):
         """sammelt abhol_datums, betriebs namen, und betriebs_seite_urls
@@ -269,8 +265,6 @@ class AutomatedFSDateSiteScraper(BaseSiteScraper):
         self.waitForNextWebsite(self.fs_dashboard_url)
         return self.webdriver.current_url
 
-
-
     def fsUrlByProfileIdy(self, id=315541):
         """läd eine fs Profilseite anhand der fs-nutzere-id"""
         return f"{modification.fsBaseUrl()}{modification.profileSnipet()}{id}"
@@ -285,8 +279,6 @@ class AutomatedFSDateSiteScraper(BaseSiteScraper):
             except Exception as e:
                 print(
                     f"{Fore.RED}ERROR #09oiökwerpu --> Konnte programm nicht registrieren {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
-
-
 
     def runCompleteJob(self, login_name, password):
         """
@@ -343,6 +335,11 @@ class AllMemberScraper(BaseSiteScraper):
         self.float_pattern = re.compile(r'[\d]*[.][\d]+')
         self.int_pattern = re.compile(r"\d+")
 
+
+    def __del__(self):
+        if self.webdriver:
+            self.webdriver.close()
+
     def getAllMembers(self, first_member_url="https://foodsharing.de/?page=bezirk&bid=159&sub=members"):
         """
         gets all members of a certain district, starting with the first url to the first page, and klicks
@@ -360,7 +357,6 @@ class AllMemberScraper(BaseSiteScraper):
                 break
         self.webdriver.implicitly_wait(0)
 
-
     def clickElementLeadingToNextPage(self):
         """sucht und drückt das element das zur nächsten Seite führt"""
         buttons = self.webdriver.find_elements_by_class_name("page-link")
@@ -372,51 +368,56 @@ class AllMemberScraper(BaseSiteScraper):
                     button.click()
                     return True
 
-
-
     def getAllMembersFromActualSite(self):
+        """
+        :return: str:member_name, str:member_url
+        """
         member_box = self.webdriver.find_element_by_class_name("table.b-table.table-hover.table-sm")
         member_nodes = member_box.find_elements_by_tag_name("a")
         member_names = [member_node.text for member_node in member_nodes]
         member_urls = [member_node.get_attribute("href") for member_node in member_nodes]
         return member_names, member_urls
 
-
     def saveContainer(self, file_path="container.sav"):
+        """
+        saves self.member_container fo filepath
+        """
         with open(file_path, "wb") as fh:
             pickle.dump(self.member_container, fh)
         print(f"#6672763 member_container saved: {file_path}")
 
-    def loadContainer(self, file_path="container.sav"):
+    @staticmethod
+    def loadContainer(file_path="container.sav"):
+        """
+        loads pickled member_container from file_path
+        """
         with open(file_path, "rb") as fh:
             saved_container = pickle.load(fh)
-        saved_container.update(self.member_container)
-        self.member_container = saved_container
-        print(f"#9872340239 member_container loaded: {file_path} members: {len(self.member_container)}")
+        return saved_container
 
 
-
-    def __del__(self):
-        if self.webdriver:
-            self.webdriver.close()
-            
     def getAllMemberDataFromSiteUrl(self, member_url):
-
+        """
+        fetches all available information and data from fs_memper_profil_page
+        :param member_url: url to member profile page
+        :return: result dict wich holds all fetched data
+        """
         result_dict = {}
         self.getSiteByUrl(member_url)
-        
 
         result_dict = self.getMemberDevotionData(result_dict=result_dict)
-
         result_dict = self.getMemberAchievementData(result_dict=result_dict)
-
-        self.getMemberBananes(result_dict=result_dict)
-
+        result_dict = self.getMemberBananes(result_dict=result_dict)
         print(f"#8727882929 data for {member_url}: {result_dict}")
 
         return result_dict
 
     def getMemberBananes(self, result_dict):
+        """
+        fetches amount of Banana the member from the actual site
+        :param result_dict:
+        :return:
+        """
         banana_lable = {"item stat_bananacount"}
         all_a_nodes = self.webdriver.find_elements_by_tag_name("a")
 
@@ -428,13 +429,16 @@ class AllMemberScraper(BaseSiteScraper):
                 result_dict["Bananen"] = self.getAmountValue(value_string)
         return result_dict
 
-
-
-
     def getMemberAchievementData(self, result_dict):
-        achievement_lables = {"item stat_fetchweight": "abgeholt", "item stat_fetchcount": "Anzahl Abholungen",
+        """
+        fetches from actual site: abgeholte Menge, Anzahl Abholungen, Posts erstellt, Essenskörbe erstellt
+        and saves results in dictionary
+        :param result_dict: dict to save to
+        :return: result dict
+        """
+        achievement_lables = {"item stat_fetchweight": "abgeholte Menge", "item stat_fetchcount": "Anzahl Abholungen",
                               "item stat_postcount": "Posts erstellt", "item stat_basketcount": "Essenskörbe erstellt",
-                              #"item stat_bananacount": "Bananen"
+                              # "item stat_bananacount": "Bananen"
                               }
         all_span_nodes = self.webdriver.find_elements_by_tag_name("span")
 
@@ -446,47 +450,61 @@ class AllMemberScraper(BaseSiteScraper):
 
         return result_dict
 
-
     def getAmountValue(self, string):
+        """
+        gets word value mixed string and returns value as int
+             'balbla haha 377 okay' --> 377
+        :param string: word value mixed string
+        :return: value as int
+        """
         amount_f = re.findall(self.float_pattern, string)
         if amount_f:
             try:
-                return float(amount_f[0])
+                return int(amount_f[0].replace(".",""))
             except Exception as e:
-                print(f"{Fore.RED}ERROR #9879778911 --> sting: {string}; amount_f: {amount_f} {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
+                print(
+                    f"{Fore.RED}ERROR #9879778911 --> sting: {string}; amount_f: {amount_f} {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
         amount_i = re.findall(self.int_pattern, string)
         if amount_i:
             try:
                 return int(amount_i[0])
             except Exception as e:
-                # print(f"t} : {}")
                 print(f"{Fore.RED}ERROR #98723239778911 --> sting: {string}; amount_i: {amount_i} {e.__traceback__.tb_lineno}, {repr(e.__traceback__)}, {repr(e)},  {e.__cause__}{Fore.RESET}")
         return 0
 
 
     def getMemberDevotionData(self, result_dict):
+        """
+        fetches attributes, places member is devoted to and saves them to dict
+        :param result_dict: dict to save to
+        :return: result dict
+        """
         devotion_attributes = {"Botschafter", "Foodsaver in", "Stammbezirk", "Ansprechpartner", "Schlafmütze"}
 
         all_p_nodes = self.webdriver.find_elements_by_tag_name("p")
 
-
         devotion_strings = [p_node.text for p_node in all_p_nodes if p_node.text]
         for possible_attribute in devotion_strings:
-            key, values = self.confirmData(data= possible_attribute, attributes= devotion_attributes)
+            key, values = self.splitDevotionLine(data=possible_attribute, attributes=devotion_attributes)
             if key:
                 result_dict[key] = values
         return result_dict
 
-
-
-    def confirmData(self, data, attributes):
+    def splitDevotionLine(self, data, attributes):
+        """
+        splits member devotion line in attribute and values
+        :param data: devotion line
+        :param attributes: possible bzw. allowed attributes
+        :return: attribute, values
+        """
         for attribute in attributes:
             if attribute in data:
                 first, new_line, value_string = data.partition("\n")
                 values = value_string.split(", ")
+                # todo schlafmütze must be better loked at, to extract dates as well
                 return attribute, values
         return False, False
-    
+
 
 if __name__ == "__main__":
     pass
@@ -497,8 +515,6 @@ if __name__ == "__main__":
     # print(f"#987230 {[member_scraper.member_container[member_url]['name'] for member_url in member_scraper.member_container]}")
     # member_scraper.saveContainer()
 
-
-
     # test1 = fs_site_scraper.CrossPlatformJS_Driver()
     # webdriver = fs_site_scraper.CrossPlatformJS_Driver()
     # webdriver2 = fs_site_scraper.CrossPlatformJS_Driver(debug=False)
@@ -507,4 +523,3 @@ if __name__ == "__main__":
     #                                      programm_used_first_time=False,
     #                                      run_automated=True)
     #
-

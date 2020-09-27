@@ -16,7 +16,7 @@ from fs_site_scraper import AllMemberScraper
 import email_and_psd
 
 member_scraper = AllMemberScraper(email=None)
-member_scraper.loadContainer()
+member_scraper.member_container = member_scraper.loadContainer()
 all_members_sorted = member_scraper.member_container.allMembersSortedByName()
 print(all_members_sorted)
 member_scraper.initiateWebdriver(debug=True)
